@@ -13,7 +13,7 @@ import {
 } from "react-bootstrap";
 
 export default function ResultsSection({ results, isLoading, onRetry }) {
-  const [activeKey, setActiveKey] = useState(["0"]);
+  const [activeKey, setActiveKey] = useState(["0", "1"]);
 
   console.log(results);
 
@@ -84,60 +84,68 @@ export default function ResultsSection({ results, isLoading, onRetry }) {
       ? Math.round((cardsYouHave / totalCardsInDeck) * 100)
       : 0;
 
-  const renderCardsToBuy = () => {
-    if (results.missing.size === 0) return null;
+  const renderCardList = (cardMap, type) => {
+    if (cardMap.size === 0) return null;
+
+    // Configuration object for different card types
+    const config = {
+      missing: {
+        primaryBadge: (info) => ({
+          bg: "danger",
+          text: `Missing: ${info.shortage}`,
+          className: "me-1",
+        }),
+        secondaryBadge: (info) =>
+          info.owned > 0
+            ? {
+                bg: "secondary",
+                text: `Have: ${info.owned}`,
+              }
+            : null,
+      },
+      available: {
+        primaryBadge: (info) => ({
+          bg: "success",
+          text: `Have: ${info.owned}`,
+          className: "me-1",
+        }),
+        secondaryBadge: (info) => ({
+          bg: info.needed > info.owned ? "danger" : "secondary",
+          text: `Need: ${info.needed}`,
+        }),
+      },
+    };
+
+    const currentConfig = config[type];
+    if (!currentConfig) return null;
 
     return (
       <ListGroup variant="flush">
-        {Array.from(results.missing.entries()).map(([cardName, info]) => (
-          <ListGroup.Item
-            key={cardName}
-            className="d-flex justify-content-between align-items-center"
-          >
-            <div>
-              <i className="bi bi-cart-plus me-2 text-danger"></i>
-              <span className="fw-medium">{cardName}</span>
-            </div>
-            <div className="text-end">
-              <Badge bg="danger" className="me-1">
-                Need: {info.shortage}
-              </Badge>
-              {info.owned > 0 && (
-                <Badge bg="secondary">Have: {info.owned}</Badge>
-              )}
-            </div>
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
-    );
-  };
+        {Array.from(cardMap.entries()).map(([cardName, info]) => {
+          const primaryBadge = currentConfig.primaryBadge(info);
+          const secondaryBadge = currentConfig.secondaryBadge(info);
 
-  const renderCardsOwned = () => {
-    if (results.available.size === 0) return null;
-    Array.from(results.available.entries()).map(([cardName, info]) =>
-      console.log(info)
-    );
-    return (
-      <ListGroup variant="flush">
-        {Array.from(results.available.entries()).map(([cardName, info]) => (
-          <ListGroup.Item
-            key={cardName}
-            className="d-flex justify-content-between align-items-center"
-          >
-            <div>
-              <i className="bi bi-cart-plus me-2 text-danger"></i>
+          return (
+            <ListGroup.Item
+              key={cardName}
+              className="d-flex justify-content-between align-items-center"
+              action
+            >
               <span className="fw-medium">{cardName}</span>
-            </div>
-            <div className="text-end">
-              <Badge bg="success" className="me-1">
-                Have: {info.owned}
-              </Badge>
-              {info.needed > info.owned && (
-                <Badge bg="danger">need: {info.needed - info.owned}</Badge>
-              )}
-            </div>
-          </ListGroup.Item>
-        ))}
+              <div className="text-end">
+                <Badge
+                  bg={primaryBadge.bg}
+                  className={primaryBadge.className || ""}
+                >
+                  {primaryBadge.text}
+                </Badge>
+                {secondaryBadge && (
+                  <Badge bg={secondaryBadge.bg}>{secondaryBadge.text}</Badge>
+                )}
+              </div>
+            </ListGroup.Item>
+          );
+        })}
       </ListGroup>
     );
   };
@@ -235,7 +243,7 @@ export default function ResultsSection({ results, isLoading, onRetry }) {
             >
               {/* Cards to Buy */}
               {results.missing.size > 0 && (
-                <Accordion.Item eventKey="0">
+                <Accordion.Item eventKey="0" alwaysOpen>
                   <Accordion.Header>
                     <i className="bi bi-cart-plus-fill text-success me-2"></i>
                     Already Have:
@@ -245,7 +253,7 @@ export default function ResultsSection({ results, isLoading, onRetry }) {
                     </Badge>
                   </Accordion.Header>
                   <Accordion.Body className="p-0">
-                    {renderCardsOwned()}
+                    {renderCardList(results.available, "available")}
                   </Accordion.Body>
                 </Accordion.Item>
               )}
@@ -257,11 +265,10 @@ export default function ResultsSection({ results, isLoading, onRetry }) {
               activeKey={activeKey}
               className="mt-3"
               onSelect={setActiveKey}
-              alwaysOpen
             >
               {/* Cards to Buy */}
               {results.missing.size > 0 && (
-                <Accordion.Item eventKey="0">
+                <Accordion.Item eventKey="1" alwaysOpen>
                   <Accordion.Header>
                     <i className="bi bi-cart-plus-fill text-danger me-2"></i>
                     Missing:
@@ -271,7 +278,7 @@ export default function ResultsSection({ results, isLoading, onRetry }) {
                     </Badge>
                   </Accordion.Header>
                   <Accordion.Body className="p-0">
-                    {renderCardsToBuy()}
+                    {renderCardList(results.missing, "missing")}
                   </Accordion.Body>
                 </Accordion.Item>
               )}

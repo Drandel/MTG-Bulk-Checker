@@ -5,7 +5,11 @@
 }
 
 .card-body-sized {
-  min-height: 150px;
+  min-height: 300px;
+}
+
+.card-text-sized {
+  min-height: 75px;
 }
 
 html {
