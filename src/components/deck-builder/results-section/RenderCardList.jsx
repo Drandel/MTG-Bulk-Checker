@@ -1,7 +1,10 @@
 import React from "react";
-import { ListGroup, Badge } from "react-bootstrap";
+import { ListGroup, Badge, OverlayTrigger, Popover } from "react-bootstrap";
+import { getCardByName } from "../../../api/scryfallApi";
+import CardInfoPopover from "./CardInfoPopover";
 
 export default function RenderCardList({ cardMap, type }) {
+  const [cardInfo, setCardInfo] = React.useState(null);
   if (cardMap.size === 0) return null;
 
   // Configuration object for different card types
@@ -36,6 +39,15 @@ export default function RenderCardList({ cardMap, type }) {
   const currentConfig = config[type];
   if (!currentConfig) return null;
 
+  const handleOnToggle = async (isOpen, cardName) => {
+    if (isOpen) {
+      const result = await getCardByName(cardName);
+      setCardInfo(result);
+    } else {
+      setCardInfo(null);
+    }
+  };
+
   return (
     <ListGroup variant="flush">
       {Array.from(cardMap.entries()).map(([cardName, info]) => {
@@ -43,24 +55,38 @@ export default function RenderCardList({ cardMap, type }) {
         const secondaryBadge = currentConfig.secondaryBadge(info);
 
         return (
-          <ListGroup.Item
-            key={cardName}
-            className="d-flex justify-content-between align-items-center"
-            action
+          <OverlayTrigger
+            trigger="focus"
+            placement="top"
+            onToggle={(isOpen, event) => handleOnToggle(isOpen, cardName)}
+            overlay={
+              <Popover>
+                <Popover.Header as="h3">{cardName}</Popover.Header>
+                <Popover.Body>
+                  <CardInfoPopover cardInfo={cardInfo} />
+                </Popover.Body>
+              </Popover>
+            }
           >
-            <span className="fw-medium">{cardName}</span>
-            <div className="text-end">
-              <Badge
-                bg={primaryBadge.bg}
-                className={primaryBadge.className || ""}
-              >
-                {primaryBadge.text}
-              </Badge>
-              {secondaryBadge && (
-                <Badge bg={secondaryBadge.bg}>{secondaryBadge.text}</Badge>
-              )}
-            </div>
-          </ListGroup.Item>
+            <ListGroup.Item
+              key={cardName}
+              className="d-flex justify-content-between align-items-center"
+              action
+            >
+              <span className="fw-medium">{cardName}</span>
+              <div className="text-end">
+                <Badge
+                  bg={primaryBadge.bg}
+                  className={primaryBadge.className || ""}
+                >
+                  {primaryBadge.text}
+                </Badge>
+                {secondaryBadge && (
+                  <Badge bg={secondaryBadge.bg}>{secondaryBadge.text}</Badge>
+                )}
+              </div>
+            </ListGroup.Item>
+          </OverlayTrigger>
         );
       })}
     </ListGroup>

@@ -1,8 +1,12 @@
 import React from "react";
 import { Card, Button } from "react-bootstrap";
-import { BiCopyAlt, BiShoppingBag, BiTrophy } from "react-icons/bi";
+import { BiCheck, BiCopyAlt, BiShoppingBag, BiTrophy } from "react-icons/bi";
 
-function ShoppingStatus({ results, cardsYouNeed, totalCardsInDeck }) {
+export default function ShoppingStatus({
+  results,
+  cardsYouNeed,
+  totalCardsInDeck,
+}) {
   const [showCopySuccess, setShowCopySuccess] = React.useState(false);
 
   if (!results || (results.missing.size === 0 && !results.canBuild)) {
@@ -20,7 +24,10 @@ function ShoppingStatus({ results, cardsYouNeed, totalCardsInDeck }) {
 
       await navigator.clipboard.writeText(formattedList);
 
-      setShowCopySuccess(true); // if you have state for showing success feedback
+      setShowCopySuccess(true);
+
+      // Auto-hide after 2 seconds
+      setTimeout(() => setShowCopySuccess(false), 2000);
     } catch (error) {
       console.error("Failed to copy to clipboard:", error);
     }
@@ -54,7 +61,25 @@ function ShoppingStatus({ results, cardsYouNeed, totalCardsInDeck }) {
               You need to acquire <strong>{cardsYouNeed} cards</strong>
             </p>
           </div>
-          <div className="text-center">
+          <div className="text-center position-relative">
+            <BiCheck
+              style={{
+                marginRight: "5px",
+                color: "#198754",
+                fontSize: "1.75rem",
+                transform: showCopySuccess
+                  ? "translateX(0)"
+                  : "translateX(10px)",
+                opacity: showCopySuccess ? 1 : 0,
+                transition: "all 0.3s ease-in-out",
+                position: "absolute",
+                right: "100%",
+                top: "50%",
+                transform: showCopySuccess
+                  ? "translateY(-50%) translateX(0)"
+                  : "translateY(-50%) translateX(10px)",
+              }}
+            />
             <Button
               variant="outline-warning"
               size="sm"
@@ -69,5 +94,3 @@ function ShoppingStatus({ results, cardsYouNeed, totalCardsInDeck }) {
     </Card>
   );
 }
-
-export default ShoppingStatus;

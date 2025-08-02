@@ -2,7 +2,7 @@ import React from "react";
 import { Accordion, Badge } from "react-bootstrap";
 import RenderCardList from "./RenderCardList";
 
-const pageCopy = {
+const pageConfig = {
   available: {
     key: "0",
     headerText: "Already Have",
@@ -20,15 +20,15 @@ export default function CardBreakdown({ variant, data, canBuild }) {
     return null;
   }
 
-  const copyVariant = pageCopy[variant];
+  const pageVariant = pageConfig[variant];
 
   return (
-    <Accordion activeKey={copyVariant.key} className="mt-3" alwaysOpen>
+    <Accordion activeKey={pageVariant.key} className="mt-3" alwaysOpen>
       {/* Cards Already Owned */}
-      <Accordion.Item eventKey={copyVariant.key} alwaysopen="true">
+      <Accordion.Item eventKey={pageVariant.key} alwaysopen="true">
         <Accordion.Header>
-          {copyVariant.headerText}:
-          <Badge bg={copyVariant.badgeColor} className="ms-2">
+          {pageVariant.headerText}:
+          <Badge bg={pageVariant.badgeColor} className="ms-2">
             {data.size} card
             {data.size !== 1 && "s"}
           </Badge>
