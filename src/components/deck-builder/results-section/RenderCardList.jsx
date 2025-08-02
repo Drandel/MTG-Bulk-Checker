@@ -57,7 +57,7 @@ export default function RenderCardList({ cardMap, type }) {
         return (
           <OverlayTrigger
             trigger="focus"
-            placement="top"
+            placement="auto"
             onToggle={(isOpen, event) => handleOnToggle(isOpen, cardName)}
             overlay={
               <Popover>
