@@ -1,11 +1,8 @@
 import { useState } from "react";
-import NavBar from "./NavBar";
 import "bootstrap/dist/css/bootstrap.min.css";
-import BulkInput from "./BulkInput";
-import NewDeckInput from "./NewDeckInput";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { compareDecksAsync } from "../../DeckFunctions";
-import ResultsSection from "./ResultsSection";
+import ResultsSection from "./results-section/ResultsSection";
 import CardsInput from "./CardsInput";
 
 export default function DeckBuilder() {
@@ -20,7 +17,7 @@ export default function DeckBuilder() {
       const comparisonResults = await compareDecksAsync(collection, newDeck);
       setResults(comparisonResults);
     } catch (error) {
-      setResults(null);
+      setResults(false);
     } finally {
       setIsLoading(false);
     }

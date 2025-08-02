@@ -63,15 +63,28 @@ function compareDecks(collectionString, newDeckString) {
   return results;
 }
 
+function sortMapByKeys(map) {
+  const sorted = new Map();
+  const sortedKeys = Array.from(map.keys()).sort();
+
+  for (const key of sortedKeys) {
+    sorted.set(key, map.get(key));
+  }
+
+  return sorted;
+}
+
 export function compareDecksAsync(collectionString, newDeckString) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     setTimeout(() => {
       try {
         const result = compareDecks(collectionString, newDeckString);
+        result.available = sortMapByKeys(result.available);
+        result.missing = sortMapByKeys(result.missing);
         resolve(result);
       } catch (error) {
         console.error("Error in async comparison:", error);
-        resolve(null);
+        reject(error);
       }
     }, 0);
   });
