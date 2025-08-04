@@ -55,6 +55,7 @@ export default function DeckBuilder() {
         <ResultsSection
           results={results}
           isLoading={isLoading}
+          deckLength={newDeck.split("\n").length}
           onRetry={handleSearch}
         />
       </Container>
